@@ -1,0 +1,78 @@
+<!DOCTYPE html>  
+<head>
+  <title>EPSA - Logistique - Kits</title>
+  <link rel="stylesheet" type="text/css" href="style/style.css"/>
+  <meta charset="utf-8">
+  <link rel="shortcut icon" href="#" />
+</head>
+<body onload="load_kits()">
+  <h1>Liste des Kits</h1>
+  <a href="/" class="retour">Retour</a>
+  <button onclick="ajout_kit()" id="ajoutkit">Nouveau kit</button>
+  <div id="error"></div>
+  <table id="tableaukits">
+  </table>
+</body>
+
+<script>
+
+function load_kits() {
+    var html = '<th colspan="2">Nom</th><th colspan="1">Nombre de pièce</th><th colspan="2">Responsable</th><th colspan="2">Département</th><th colspan="2">Lieu de stockage</th>';
+    var xhr = new XMLHttpRequest();
+
+    xhr.onload = function() {
+    var data = JSON.parse(this.responseText);
+
+    for ( n = 0; n < data.length; n++ ) {
+        html+="<tr><td headers='Nom' colspan='2'>";
+        html+= data[n].nom;
+        html+="</td><td headers='Nombre de pièce' colspan='1'>";
+        html+= data[n].nb_pieces;
+        html+="</td><td header='Responsable' colspan='2'>";
+        html+= data[n].responsable;
+        html+="</td><td headers='Département' colspan='2'>";
+        html+= data[n].departement;
+        html+="</td><td headers='Lieu de stockage' colspan='2'>";
+        html+= data[n].lieu_stockage;
+        html+="</td></tr>";
+
+    };
+    document.getElementById("tableaukits").innerHTML = html;
+    };
+    
+  xhr.open('GET','/kits',true);
+  xhr.send();
+}
+
+function ajout_kit() {
+    var html = '<form><th colspan="2"><label>Référence</label></th><th colspan="2"><label>Nom</label></th><th><label>Quantité</label></th><th colspan="2"><label>Lien achat</label></th><th><label>Prix</label></th><th><label>Poids</label></th><th colspan="2"><label>Fabricant</label></th><th><label colspan="4">Description</label></th>';
+    html +='<tr><td colspan="2"><input type="text" name="reference" id="reference" required></td><td colspan="2"><input type="text" name="nom" id="nom" required></td><td><input type="text" name="quantite" id="quantite" required></td><td colspan="2"><input type="url" name="lien_achat" id="lien_achat" required></td><td><input type="number" name="prix" id="prix" required></td><td><input type="number" name="poids" id="poids" required></td><td colspan="2"><input type="text" name="fabricant" id="fabricant" required></td><td colspan="4"><input type="text" name="description" id="description"></td></tr>';
+    html +='<tr><td colspan="4"><button onClick="confirme_ajout_piece()">Envoyer</button></td><td colspan="4"><button onclick="load_pieces()">Annuler</button></td></tr></form>'
+    document.getElementById("tableaupieces").innerHTML = html
+}
+
+function confirme_ajout_piece() {
+  document.getElementById('error').innerHTML = '';
+  var xhr = new XMLHttpRequest();
+  xhr.onload = function () {
+    if (this.status == 201) {
+      document.getElementById('error').innerHTML = '<span color="green">Commande ajoutée !</span>';
+      load_pieces();
+    }
+    else {
+      document.getElementById('error').innerHTML = '<span color="red">Erreur : remplissez bien tous les champs et assurez-vous que la référence n\'existe pas déjà.</span>';
+    }
+  }
+  xhr.open('POST','/ajoutpiece',true);
+  xhr.setRequestHeader("Content-type", "application/json");
+  xhr.send(JSON.stringify({
+    reference:document.getElementById("reference").value,
+    nom:document.getElementById("nom").value,
+    quantite:document.getElementById("quantite").value,
+    lien_achat:document.getElementById("lien_achat").value,
+    prix:document.getElementById("prix").value,
+    poids:document.getElementById("poids").value,
+    fabricant:document.getElementById("fabricant").value,
+    description:document.getElementById("description").value}));
+}
+</script>
