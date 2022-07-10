@@ -1,2 +1,11 @@
-sql_app.db
+# Cache folder
 __pycache__
+
+# Database
+sql_app.db
+
+# Dotenv file
+.env
+
+# Virtual environment
+.venv
