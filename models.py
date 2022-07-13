@@ -1,8 +1,9 @@
 from datetime import date
-from sqlalchemy import Column, ForeignKey, Integer, String, Float, Date
+from sqlalchemy import Column, ForeignKey, Integer, String, Float, Date, Boolean
 
 from database import Base
 from custypes import *
+
 
 class Membre(Base):
     __tablename__ = "membre"
@@ -11,8 +12,9 @@ class Membre(Base):
     prenom: str = Column(String, nullable=False)
     trigramme: str = Column(String, nullable=False)
     pw_hash: str = Column(String, nullable=False)
-    role : int = Column(Integer, nullable=False)
-    mail : str = Column(String, nullable=False)
+    role: int = Column(Integer, nullable=False)
+    mail: str = Column(String, nullable=False)
+
 
 class Commande(Base):
     __tablename__ = "commande"
@@ -23,12 +25,13 @@ class Commande(Base):
     poids: float = Column(Float, nullable=False)
     description: str = Column(String, nullable=False)
     contact: str = Column(String, nullable=False)
-    lien_bon : str = Column(String, nullable=False)
+    lien_bon: str = Column(String, nullable=False)
     lieu_stockage: str = Column(String, nullable=True)
     budget: int = Column(Integer, nullable=True)
     statut: int = Column(Integer, nullable=True)
     commentaire_dirfin: str = Column(String, nullable=True)
     numero_centrale: str = Column(String, nullable=True)
+
 
 class Kit(Base):
     __tablename__ = "kit"
@@ -38,6 +41,7 @@ class Kit(Base):
     responsable: int = Column(ForeignKey("membre.id"), nullable=False)
     departement: str = Column(String)
     lieu_stockage: str = Column(String)
+
 
 class PieceReelle(Base):
     __tablename__ = "piece_reelle"
@@ -49,26 +53,34 @@ class PieceReelle(Base):
     poids: float = Column(Float, nullable=False)
     fabricant: str = Column(String, nullable=False)
     description: str = Column(String, nullable=True)
+    piece_etagere: bool = Column(Boolean, nullable=False)
+    nombre_commande: int = Column(Integer, nullable=False)
+    nombre_reel: int = Column(Integer, nullable=False)
+
 
 class piece_conception(Base):
     __tablename__ = "piece_conception"
     nomenclature_catia: str = Column(String, primary_key=True)
-    id_commande: int = Column(ForeignKey("commande.id"),nullable=False)
-    id_piece: str = Column(ForeignKey("piece_reelle.reference"),nullable=False)
+    id_commande: int = Column(ForeignKey("commande.id"), nullable=False)
+    id_piece: str = Column(ForeignKey("piece_reelle.reference"), nullable=False)
     materiau: str = Column(String, nullable=False)
     quantite: int = Column(Integer, nullable=False)
     id_kit: int = Column(ForeignKey("kit.id"), nullable=False)
     lieu_stockage: str = Column(String)
     lien_MEP: str = Column(String)
 
+
 class DetailCommande(Base):
     __tablename__ = "detail_commande"
     id_commande: int = Column(ForeignKey("commande.id"), primary_key=True)
-    id_piece_reelle: str = Column(ForeignKey("piece_reelle.reference"), primary_key=True)
+    id_piece_reelle: str = Column(
+        ForeignKey("piece_reelle.reference"), primary_key=True
+    )
     quantite: int = Column(Integer, nullable=False)
     date_livraison: date = Column(Date, nullable=False)
     lieu_stockage: str = Column(String)
     etat_verif: str = Column(String)
+
 
 class HistoriqueCommande(Base):
     __tablename__ = "historique_commande"

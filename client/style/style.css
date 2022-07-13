@@ -27,17 +27,17 @@ a.accueil {
     padding: 20px 5px;
     border: 1mm solid grey;
     border-radius: 15px;
-    width:30%;
-    align-self:center;
+    width: 30%;
+    align-self: center;
     margin-bottom: 30px;
     transition-duration: 0.4s;
-    text-decoration:none;
+    text-decoration: none;
     color: grey;
     font-size: 1.3em;
 }
 
 a.accueil:hover {
-    color:white;
+    color: white;
     background-color: grey;
 }
 
@@ -45,16 +45,42 @@ a.retour {
     padding: 10px 3px;
     border: 0.5mm solid grey;
     border-radius: 15px;
-    width:10%;
-    align-self:left;
+    width: 10%;
+    align-self: left;
     margin-bottom: 20px;
     transition-duration: 0.4s;
-    text-decoration:none;
+    text-decoration: none;
     color: grey;
     font-size: 1em;
 }
 
 a.retour:hover {
-    color:white;
+    color: white;
     background-color: grey;
+}
+
+button {
+    padding: 10px 3px;
+    border: 0.5mm solid grey;
+    border-radius: 15px;
+    width: 10%;
+    align-self: left;
+    margin-bottom: 20px;
+    transition-duration: 0.4s;
+    text-decoration: none;
+    color: grey;
+    font-size: 1em;
+    background-color: white;
+}
+
+button:hover {
+    color: white;
+    background-color: grey;
+}
+
+div.boutons {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
 }

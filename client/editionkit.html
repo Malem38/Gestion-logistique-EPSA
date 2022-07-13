@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+
+<head>
+    <title>EPSA - Logistique - Kits</title>
+    <link rel="stylesheet" type="text/css" href="style/style.css" />
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="#" />
+</head>
+
+<body onload="load_kit()">
+    <h1>Edition du kit</h1>
+    <div class="boutons">
+        <a href="/" class="retour">Retour</a>
+        <button onclick="save_infos_new()" id="ajoutkit">Enregistrer les infos</button>
+    </div>
+    <div id="error"></div>
+    <table id="infos_kit">
+        <tr>
+            <th>Nom</th>
+            <th>Responsable</th>
+            <th>Département</th>
+            <th>Lieu de stockage</th>
+        </tr>
+        <tr>
+            <td id="nom"></td>
+            <td id="responsable"></td>
+            <td id="departement"></td>
+            <td id="lieu_stock"></td>
+        </tr>
+    </table>
+    <table id="pieces_kit">
+    </table>
+</body>
+
+<script>
+
+    function load_kit() {
+        var url = document.location.href;
+        var search_params = new URLSearchParams(url.search);
+
+        if (search_params.has('id_kit')) {
+            var id = search_params.get('id_kit');
+            var xhr = new XMLHttpRequest();
+
+            xhr.onload = function () {
+                var data = JSON.parse(this.responseText);
+                document.getElementById("nom").innerHTML = data.nom;
+                document.getElementById("responsable").innerHTML = data.responsable;
+                document.getElementById("departement").innerHTML = data.departement;
+                document.getElementById("lieu_stock").innerHTML = data.lieu_stock;
+                document.getElementById("ajoutkit").onclick = "edit_infos()";
+                document.getElementById("ajoutkit").innerHTML = "Modifier les infos";
+            }
+
+            xhr.open("GET", "/kits/" + id, true)
+            xhr.send()
+        }
+        else {
+            document.getElementById("nom").innerHTML = "<input type='text' name='nom' id='input_nom'>";
+            document.getElementById("responsable").innerHTML = "<input type='text' name='responsable' id='input_responsable'>";
+            document.getElementById("departement").innerHTML = "<input type='text' name='departement' id='input_departement'>";
+            document.getElementById("lieu_stock").innerHTML = "<input type='text' name='lieu_stock' id='input_lieu_stock'>";
+        }
+    }
+
+    function save_infos_new() {
+        var xhr = new XMLHttpRequest();
+
+        xhr.onload = function () {
+            if (this.status == 201) {
+                document.getElementById('error').innerHTML = '<span color="green">Commande ajoutée !</span>';
+                load_pieces();
+            }
+            else {
+                document.getElementById('error').innerHTML = '<span color="red">Erreur : remplissez bien tous les champs. Vérifiez que le département et le lieu de stockage existent</span>';
+            }
+        }
+
+        xhr.open("POST", "/kits", true)
+        xhr.setRequestHeader("Content-type", "application/json");
+        xhr.send(JSON.stringify({
+            nom: document.getElementById("nom").value,
+            responsable: document.getElementById("responsable").value,
+            departement: document.getElementById("departement").value,
+            lieu_stock: document.getElementById("lieu_stock").value
+        }));
+    }
+
+    function save_infos() {
+        var xhr = new XMLHttpRequest();
+
+        xhr.onload = function () {
+            if (this.status == 201) {
+                document.getElementById('error').innerHTML = '<span color="green">Commande ajoutée !</span>';
+                load_pieces();
+            }
+            else {
+                document.getElementById('error').innerHTML = '<span color="red">Erreur : remplissez bien tous les champs. Vérifiez que le département et le lieu de stockage existent</span>';
+            }
+        }
+
+        xhr.open("POST", "/kits/" + document.location.href.searchParams.get("id"), true)
+        xhr.setRequestHeader("Content-type", "application/json");
+        xhr.send(JSON.stringify({
+            nom: document.getElementById("nom").value,
+            responsable: document.getElementById("responsable").value,
+            departement: document.getElementById("departement").value,
+            lieu_stock: document.getElementById("lieu_stock").value
+        }));
+    }
+
+    function edit_infos() {
+        var nom = document.getElementById("nom").innerHTML;
+        var responsable = document.getElementById("responsable").innerHTML;
+        var departement = document.getElementById("departement").innerHTML;
+        var lieu_stock = document.getElementById("lieu_stock").innerHTML;
+        document.getElementById("nom").innerHTML = "<input type='text' name='nom' id='input_nom' value='" + nom + "'>";
+        document.getElementById("responsable").innerHTML = "<input type='text' name='responsable' id='input_responsable' value='" + responsable + "'>";
+        document.getElementById("departement").innerHTML = "<input type='text' name='departement' id='input_departement' value='" + departement + "'>";
+        document.getElementById("lieu_stock").innerHTML = "<input type='text' name='lieu_stock' id='input_lieu_stock' value='" + lieu_stock + "'>";
+        document.getElementById("ajoutkit").onclick = "save_infos()";
+    }
+
+
+</script>
