@@ -1,11 +1,11 @@
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Response
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import AsyncGenerator
 
-import crud, models, schemas
+import crud, models, schemas, custypes
 from database import SessionLocal, engine
 
 from enum import Enum
@@ -74,3 +74,25 @@ async def get_kits(db: AsyncSession = Depends(get_db)):
 async def get_kit_by_id(id_kit: int, db: AsyncSession = Depends(get_db)):
     result = await crud.get_kit_by_id(db, id_kit)
     return result
+
+
+@app.post("/kits", status_code=201, response_model=schemas.KitComplet, tags=[Tags.kits])
+async def add_kit(kit: schemas.KitBase, db: AsyncSession = Depends(get_db)):
+    result = await crud.add_kit(db, kit)
+    return result
+
+
+@app.patch("/kits/{id_kit}", status_code=204, tags=[Tags.kits])
+async def edit_kit(
+    id_kit: int, kit: schemas.KitBase, db: AsyncSession = Depends(get_db)
+):
+    await crud.edit_kit(db, kit, id_kit)
+    return Response(status_code=204)
+
+
+@app.get("/infos", response_model=schemas.Infos, status_code=200, tags=[Tags.kits])
+async def get_infos():
+    return schemas.Infos(
+        departements=list(custypes.Departement.__members__),
+        lieux_stock=list(custypes.LieuStock.__members__),
+    )

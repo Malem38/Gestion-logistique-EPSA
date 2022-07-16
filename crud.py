@@ -2,6 +2,7 @@ from requests import delete
 from sqlalchemy import delete, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql import func
 
 import schemas, models
 
@@ -28,3 +29,29 @@ async def get_kits(db: AsyncSession) -> list[models.Kit]:
 async def get_kit_by_id(db: AsyncSession, id_kit: int) -> models.Kit:
     result = await db.execute(select(models.Kit).where(models.Kit.id == id_kit))
     return result.scalars().first()
+
+
+async def add_kit(db: AsyncSession, kit: schemas.KitBase) -> models.Kit:
+    recherche_id = await db.execute(
+        select(func.max(models.Kit.id)).select_from(models.Kit)
+    )
+    id_max = recherche_id.scalars().first()
+    if id_max != None:
+        id = id_max + 1
+    else:
+        id = 1
+    kit_db = models.Kit(id=id, nb_pieces=0, **kit.dict())
+    db.add(kit_db)
+    try:
+        await db.commit()
+        return kit_db
+    except IntegrityError:
+        await db.rollback()
+        raise ValueError("Erreur")
+
+
+async def edit_kit(db: AsyncSession, kit: schemas.KitBase, id_kit: int):
+    await db.execute(
+        update(models.Kit).where(models.Kit.id == id_kit).values(**kit.dict())
+    )
+    await db.commit()

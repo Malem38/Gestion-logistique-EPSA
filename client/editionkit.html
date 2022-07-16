@@ -7,7 +7,7 @@
     <link rel="shortcut icon" href="#" />
 </head>
 
-<body onload="load_kit()">
+<body onload="get_infos()">
     <h1>Edition du kit</h1>
     <div class="boutons">
         <a href="/" class="retour">Retour</a>
@@ -15,27 +15,74 @@
     </div>
     <div id="error"></div>
     <table id="infos_kit">
-        <tr>
-            <th>Nom</th>
-            <th>Responsable</th>
-            <th>Département</th>
-            <th>Lieu de stockage</th>
-        </tr>
-        <tr>
-            <td id="nom"></td>
-            <td id="responsable"></td>
-            <td id="departement"></td>
-            <td id="lieu_stock"></td>
-        </tr>
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Responsable</th>
+                <th>Département</th>
+                <th>Lieu de stockage</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td id="nom"><input type='text' name='nom' id='input_nom'></td>
+                <td id="responsable"><input type='text' name='responsable' id='input_responsable'></td>
+                <td id="departement"><select name='departement' id='select_departement'><option value=''>Sélectionner un département</option></select></td>
+                <td id="lieu_stock"><select name='lieu_stock' id='select_lieu_stock'><option value=''>Sélectionner un lieu</option></select></td>
+            </tr>
+        </tbody>
     </table>
-    <table id="pieces_kit">
-    </table>
+    <div id="pieces_kit" visible="false">
+        <button onclick="ajout_piece()" id="ajoutpiece">Ajouter une pièce</button>
+        <table id="table_pieces_kit">
+            <thead>
+                <tr>
+                    <th>Nomenclature CATIA</th>
+                    <th>Matériau précis</th>
+                    <th>Quantité</th>
+                    <th>Lien MEP</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
 </body>
 
 <script>
+    var departements = [];
+    var lieux_stock = [];
+
+    function get_infos() {      
+        var xhr = new XMLHttpRequest();
+
+        xhr.onload = function() {
+            var data = JSON.parse(this.responseText);
+            departements = data.departements;
+            lieux_stock = data.lieux_stock;
+            for ( n = 0; n < departements.length; n++ ) {
+                opt = document.createElement("option");
+                opt.value = departements[n];
+                opt.text = departements[n];
+                opt.id = departements[n];
+                document.getElementById("select_departement").add(opt, null);
+            }
+
+            for ( n = 0; n < lieux_stock.length; n++ ) {
+                opt = document.createElement("option");
+                opt.value = lieux_stock[n];
+                opt.text = lieux_stock[n];
+                opt.id = lieux_stock[n];
+                document.getElementById("select_lieu_stock").add(opt, null);
+
+            }
+            load_kit();
+        }
+
+        xhr.open("GET", "/infos", true)
+        xhr.send()
+    }
 
     function load_kit() {
-        var url = document.location.href;
+        var url = new URL(document.location.href);
         var search_params = new URLSearchParams(url.search);
 
         if (search_params.has('id_kit')) {
@@ -44,32 +91,34 @@
 
             xhr.onload = function () {
                 var data = JSON.parse(this.responseText);
-                document.getElementById("nom").innerHTML = data.nom;
-                document.getElementById("responsable").innerHTML = data.responsable;
-                document.getElementById("departement").innerHTML = data.departement;
-                document.getElementById("lieu_stock").innerHTML = data.lieu_stock;
-                document.getElementById("ajoutkit").onclick = "edit_infos()";
+                document.getElementById("input_nom").value = data.nom;
+                document.getElementById("input_nom").disabled = true;
+                document.getElementById("input_responsable").value = data.responsable;
+                document.getElementById("input_responsable").disabled = true;
+                document.getElementById(data.departement).selected = true;
+                document.getElementById("select_departement").disabled = true;
+                document.getElementById(data.lieu_stockage).selected = true;
+                document.getElementById("select_lieu_stock").disabled = true;
+                document.getElementById("ajoutkit").onclick = edit_infos;
                 document.getElementById("ajoutkit").innerHTML = "Modifier les infos";
+                document.getElementById("pieces_kit").visible = true;
             }
 
             xhr.open("GET", "/kits/" + id, true)
             xhr.send()
-        }
-        else {
-            document.getElementById("nom").innerHTML = "<input type='text' name='nom' id='input_nom'>";
-            document.getElementById("responsable").innerHTML = "<input type='text' name='responsable' id='input_responsable'>";
-            document.getElementById("departement").innerHTML = "<input type='text' name='departement' id='input_departement'>";
-            document.getElementById("lieu_stock").innerHTML = "<input type='text' name='lieu_stock' id='input_lieu_stock'>";
         }
     }
 
     function save_infos_new() {
         var xhr = new XMLHttpRequest();
 
+        document.getElementById('error').innerHTML = '';
+
         xhr.onload = function () {
             if (this.status == 201) {
+                var data = JSON.parse(this.responseText);
                 document.getElementById('error').innerHTML = '<span color="green">Commande ajoutée !</span>';
-                load_pieces();
+                window.location.href = "editionkit.html?id_kit="+data.id;
             }
             else {
                 document.getElementById('error').innerHTML = '<span color="red">Erreur : remplissez bien tous les champs. Vérifiez que le département et le lieu de stockage existent</span>';
@@ -79,33 +128,38 @@
         xhr.open("POST", "/kits", true)
         xhr.setRequestHeader("Content-type", "application/json");
         xhr.send(JSON.stringify({
-            nom: document.getElementById("nom").value,
-            responsable: document.getElementById("responsable").value,
-            departement: document.getElementById("departement").value,
-            lieu_stock: document.getElementById("lieu_stock").value
+            nom: document.getElementById("input_nom").value,
+            responsable: document.getElementById("input_responsable").value,
+            departement: document.getElementById("select_departement").value,
+            lieu_stockage: document.getElementById("select_lieu_stock").value,
+            nb_pieces: 0,
         }));
     }
 
     function save_infos() {
         var xhr = new XMLHttpRequest();
+        var url = new URL(document.location.href);
+        var search_params = new URLSearchParams(url.search);
+
+        document.getElementById('error').innerHTML = '';
 
         xhr.onload = function () {
-            if (this.status == 201) {
-                document.getElementById('error').innerHTML = '<span color="green">Commande ajoutée !</span>';
-                load_pieces();
+            if (this.status == 204) {
+                document.getElementById('error').innerHTML = '<span color="green">Informations modifiées !</span>';
+                load_kit();
             }
             else {
                 document.getElementById('error').innerHTML = '<span color="red">Erreur : remplissez bien tous les champs. Vérifiez que le département et le lieu de stockage existent</span>';
             }
         }
 
-        xhr.open("POST", "/kits/" + document.location.href.searchParams.get("id"), true)
+        xhr.open("PATCH", "/kits/" + search_params.get('id_kit'), true)
         xhr.setRequestHeader("Content-type", "application/json");
         xhr.send(JSON.stringify({
-            nom: document.getElementById("nom").value,
-            responsable: document.getElementById("responsable").value,
-            departement: document.getElementById("departement").value,
-            lieu_stock: document.getElementById("lieu_stock").value
+            nom: document.getElementById("input_nom").value,
+            responsable: document.getElementById("input_responsable").value,
+            departement: document.getElementById("select_departement").value,
+            lieu_stockage: document.getElementById("select_lieu_stock").value
         }));
     }
 
@@ -114,11 +168,14 @@
         var responsable = document.getElementById("responsable").innerHTML;
         var departement = document.getElementById("departement").innerHTML;
         var lieu_stock = document.getElementById("lieu_stock").innerHTML;
-        document.getElementById("nom").innerHTML = "<input type='text' name='nom' id='input_nom' value='" + nom + "'>";
-        document.getElementById("responsable").innerHTML = "<input type='text' name='responsable' id='input_responsable' value='" + responsable + "'>";
-        document.getElementById("departement").innerHTML = "<input type='text' name='departement' id='input_departement' value='" + departement + "'>";
-        document.getElementById("lieu_stock").innerHTML = "<input type='text' name='lieu_stock' id='input_lieu_stock' value='" + lieu_stock + "'>";
-        document.getElementById("ajoutkit").onclick = "save_infos()";
+
+        document.getElementById("input_nom").disabled = false;
+        document.getElementById("input_responsable").disabled = false;
+        document.getElementById("select_departement").disabled = false;
+        document.getElementById("select_lieu_stock").disabled = false;
+        document.getElementById("ajoutkit").onclick = save_infos;
+        document.getElementById("ajoutkit").innerHTML = "Enregistrer les infos";
+        document.getElementById("pieces_kit").visible = false;
     }
 
 

@@ -23,14 +23,22 @@ class PiecesComplet(PiecesReelles):
 
 class KitBase(BaseModel):
     nom: str
-    nb_pieces: int
     responsable: str
     departement: Departement
-    lieu_stock: LieuStock
-
+    lieu_stockage: LieuStock
 
 class KitComplet(KitBase):
     id: int
+    nb_pieces: int
 
     class Config:
         orm_mode = True
+
+
+class Infos(BaseModel):
+    departements: list[str]
+    lieux_stock: list[str]
+
+    class Config:
+        orm_mode = True
+        

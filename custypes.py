@@ -12,9 +12,9 @@ class Departement(str, Enum):
 
 
 class LieuStock(str, Enum):
-    ISYRUN_Chaud = "ISYRUN Chaud"
-    ISYRUN_Froid = "ISYRUN Froid"
-    ISYRUN_Bron = "ISYRUN Bron"
+    ISYRUN_Chaud = "ISYRUN_Chaud"
+    ISYRUN_Froid = "ISYRUN_Froid"
+    ISYRUN_Bron = "ISYRUN_Bron"
 
     def __str__(self):
         return f"{self.name}<{self.value}>"
@@ -37,8 +37,8 @@ class Action(str, Enum):
 
 
 class Budget(str, Enum):
-    ISYRUN_Central = "ISYRUN Central"
-    Association_EPSA = "Association EPSA"
+    ISYRUN_Central = "ISYRUN_Central"
+    Association_EPSA = "Association_EPSA"
 
     def __str__(self):
         return f"{self.name}<{self.value}>"
