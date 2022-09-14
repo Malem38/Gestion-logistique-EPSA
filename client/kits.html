@@ -21,7 +21,7 @@
 <script>
 
   function load_kits() {
-    var html = '<th colspan="2">Nom</th><th colspan="1">Nombre de pièce</th><th colspan="2">Responsable</th><th colspan="2">Département</th><th colspan="2">Lieu de stockage</th>';
+    var html = '<th colspan="2">Nom</th><th colspan="1">Nombre de pièce</th><th colspan="2">Responsable</th><th colspan="2">Département</th><th colspan="2">Lieu de stockage</th><th></th>';
     var xhr = new XMLHttpRequest();
 
     xhr.onload = function () {
@@ -38,6 +38,7 @@
         html += data[n].departement;
         html += "</td><td headers='Lieu de stockage' colspan='2'>";
         html += data[n].lieu_stockage;
+        html += "</td><td><button onclick='window.location.href = `editionkit.html?id_kit="+data[n].id+"`'>Modifier</button>"
         html += "</td></tr>";
 
       };

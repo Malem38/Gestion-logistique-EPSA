@@ -84,3 +84,12 @@ div.boutons {
     width: 100%;
     justify-content: space-between;
 }
+
+#pieces_kit {
+    margin-top: 50px;
+    width:100%
+
+}
+#table_pieces_kit {
+    width:100%;
+}

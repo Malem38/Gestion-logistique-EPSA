@@ -1,11 +1,14 @@
-from fastapi import Depends, FastAPI, HTTPException, Response
+from fastapi import Depends, FastAPI, Response
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import AsyncGenerator
 
-import crud, models, schemas, custypes
+import crud
+import models
+import schemas
+import custypes
 from database import SessionLocal, engine
 
 from enum import Enum
@@ -88,6 +91,16 @@ async def edit_kit(
 ):
     await crud.edit_kit(db, kit, id_kit)
     return Response(status_code=204)
+
+
+@app.get(
+    "/kits/{id_kit}/pieces",
+    response_model=list[schemas.PiecesKitBase],
+    status_code=200,
+    tags=[Tags.kits],
+)
+async def get_kit_pieces(id_kit: int, db: AsyncSession = Depends(get_db)):
+    return crud.get_kit_pieces(db, id_kit)
 
 
 @app.get("/infos", response_model=schemas.Infos, status_code=200, tags=[Tags.kits])

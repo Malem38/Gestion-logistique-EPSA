@@ -10,7 +10,7 @@
 <body onload="get_infos()">
     <h1>Edition du kit</h1>
     <div class="boutons">
-        <a href="/" class="retour">Retour</a>
+        <a href="kits.html" class="retour">Retour</a>
         <button onclick="save_infos_new()" id="ajoutkit">Enregistrer les infos</button>
     </div>
     <div id="error"></div>
@@ -27,12 +27,17 @@
             <tr>
                 <td id="nom"><input type='text' name='nom' id='input_nom'></td>
                 <td id="responsable"><input type='text' name='responsable' id='input_responsable'></td>
-                <td id="departement"><select name='departement' id='select_departement'><option value=''>Sélectionner un département</option></select></td>
-                <td id="lieu_stock"><select name='lieu_stock' id='select_lieu_stock'><option value=''>Sélectionner un lieu</option></select></td>
+                <td id="departement"><select name='departement' id='select_departement'>
+                        <option value=''>Sélectionner un département</option>
+                    </select></td>
+                <td id="lieu_stock"><select name='lieu_stock' id='select_lieu_stock'>
+                        <option value=''>Sélectionner un lieu</option>
+                    </select></td>
             </tr>
         </tbody>
     </table>
-    <div id="pieces_kit" visible="false">
+    <div id="pieces_kit" style="display:none;">
+        <h2>Pièces du kit</h2>
         <button onclick="ajout_piece()" id="ajoutpiece">Ajouter une pièce</button>
         <table id="table_pieces_kit">
             <thead>
@@ -41,8 +46,10 @@
                     <th>Matériau précis</th>
                     <th>Quantité</th>
                     <th>Lien MEP</th>
+                    <th></th>
                 </tr>
             </thead>
+            <tbody id="tbody_pieces_kit"></tbody>
         </table>
     </div>
 </body>
@@ -51,14 +58,14 @@
     var departements = [];
     var lieux_stock = [];
 
-    function get_infos() {      
+    function get_infos() {
         var xhr = new XMLHttpRequest();
 
-        xhr.onload = function() {
+        xhr.onload = function () {
             var data = JSON.parse(this.responseText);
             departements = data.departements;
             lieux_stock = data.lieux_stock;
-            for ( n = 0; n < departements.length; n++ ) {
+            for (n = 0; n < departements.length; n++) {
                 opt = document.createElement("option");
                 opt.value = departements[n];
                 opt.text = departements[n];
@@ -66,7 +73,7 @@
                 document.getElementById("select_departement").add(opt, null);
             }
 
-            for ( n = 0; n < lieux_stock.length; n++ ) {
+            for (n = 0; n < lieux_stock.length; n++) {
                 opt = document.createElement("option");
                 opt.value = lieux_stock[n];
                 opt.text = lieux_stock[n];
@@ -101,14 +108,41 @@
                 document.getElementById("select_lieu_stock").disabled = true;
                 document.getElementById("ajoutkit").onclick = edit_infos;
                 document.getElementById("ajoutkit").innerHTML = "Modifier les infos";
-                document.getElementById("pieces_kit").visible = true;
+                document.getElementById("pieces_kit").style.display = "block";
             }
 
             xhr.open("GET", "/kits/" + id, true)
             xhr.send()
         }
     }
+    function load_pieces() {
+        var url = new URL(document.location.href);
+        var search_params = new URLSearchParams(url.search);
+        var id = search_params.get('id_kit');
+        var xhr = new XMLHttpRequest();
 
+        xhr.onload = function () {
+            var data = JSON.parse(this.responseText);
+
+            for (n = 0; n < data.length; n++) {
+                html += "<tr><td>";
+                html += data[n].nomenclature_catia;
+                html += "</td><td>";
+                html += data[n].materiau;
+                html += "</td><td>";
+                html += data[n].quantite;
+                html += "</td><td>";
+                html += data[n].lien_MEP;
+                html += "</td><td><button onclick='edit_piece(" + data[n].id + ")'>Modifier</button>";
+                html += "</td></tr>";
+
+            };
+            document.getElementById("tableaupieces").innerHTML = html;
+        }
+
+        xhr.open("GET", "/kits/" + id + "/pieces", true)
+        xhr.send()
+    }
     function save_infos_new() {
         var xhr = new XMLHttpRequest();
 
@@ -118,7 +152,7 @@
             if (this.status == 201) {
                 var data = JSON.parse(this.responseText);
                 document.getElementById('error').innerHTML = '<span color="green">Commande ajoutée !</span>';
-                window.location.href = "editionkit.html?id_kit="+data.id;
+                window.location.href = "editionkit.html?id_kit=" + data.id;
             }
             else {
                 document.getElementById('error').innerHTML = '<span color="red">Erreur : remplissez bien tous les champs. Vérifiez que le département et le lieu de stockage existent</span>';
@@ -169,14 +203,22 @@
         var departement = document.getElementById("departement").innerHTML;
         var lieu_stock = document.getElementById("lieu_stock").innerHTML;
 
+        document.getElementById('error').innerHTML = '';
         document.getElementById("input_nom").disabled = false;
         document.getElementById("input_responsable").disabled = false;
         document.getElementById("select_departement").disabled = false;
         document.getElementById("select_lieu_stock").disabled = false;
         document.getElementById("ajoutkit").onclick = save_infos;
         document.getElementById("ajoutkit").innerHTML = "Enregistrer les infos";
-        document.getElementById("pieces_kit").visible = false;
+        document.getElementById("pieces_kit").style.display = "none";
     }
 
+    function ajout_piece() {
+        document.getElementById("ajoutpiece").disabled = true;
+        document.getElementById("tbody_pieces_kit").innerHTML += "<tr><td id='catia'><input type='text' name='catia' id='input_catia'></td><td id='materiau'><input type='text' name='materiau' id='input_materiau'></td><td id='quantite'><input type='number' min='1' name='quantite' id='input_quantite'></td><td id='MEP'><input type='url' name='MEP' id='input_MEP'></td><td id='add'><button onclick='confirme_ajout_piece()'>Ajouter</button><button onclick='load_pieces()'>Annuler</button></td></tr>";
+    }
 
+    function confirme_ajout_piece() {
+
+    }
 </script>

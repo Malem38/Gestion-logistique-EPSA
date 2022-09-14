@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from custypes import *
+from custypes import Departement, LieuStock
 
 
 class PiecesReelles(BaseModel):
@@ -27,6 +27,7 @@ class KitBase(BaseModel):
     departement: Departement
     lieu_stockage: LieuStock
 
+
 class KitComplet(KitBase):
     id: int
     nb_pieces: int
@@ -41,4 +42,20 @@ class Infos(BaseModel):
 
     class Config:
         orm_mode = True
-        
+
+
+class PiecesKitBase(BaseModel):
+    nomenclature_catia: str
+    materiau: str
+    quantite: int
+    id_kit: int
+    lien_MEP: str
+
+
+class PiecesKitComplet(PiecesKitBase):
+    id_commande: int | None = None
+    id_piece: str | None = None
+    lieu_stockage: str | None = None
+
+    class Config:
+        orm_mode = True
