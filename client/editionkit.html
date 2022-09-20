@@ -123,6 +123,7 @@
 
         xhr.onload = function () {
             var data = JSON.parse(this.responseText);
+            document.getElementById("ajoutpiece").disabled = false;
 
             for (n = 0; n < data.length; n++) {
                 html += "<tr><td>";
@@ -219,6 +220,24 @@
     }
 
     function confirme_ajout_piece() {
-
+        var xhr = new XMLHttpRequest();
+        var url = new URL(document.location.href);
+        var search_params = new URLSearchParams(url.search);
+        var id = search_params.get('id_kit');
+        xhr.onload = function () {
+            load_pieces()
+        }
+        xhr.open('POST', '/kits/'+id+'/ajoutpiece', true);
+        xhr.setRequestHeader("Content-type", "application/json");
+        xhr.send(JSON.stringify({
+        reference: document.getElementById("reference").value,
+        nom: document.getElementById("nom").value,
+        quantite: document.getElementById("quantite").value,
+        lien_achat: document.getElementById("lien_achat").value,
+        prix: document.getElementById("prix").value,
+        poids: document.getElementById("poids").value,
+        fabricant: document.getElementById("fabricant").value,
+        description: document.getElementById("description").value
+        }));
     }
 </script>

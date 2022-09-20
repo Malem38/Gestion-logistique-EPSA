@@ -1,10 +1,10 @@
-from requests import delete
-from sqlalchemy import delete, select, update
+from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import func
 
-import schemas, models
+import schemas
+import models
 
 
 async def get_piecesreelles(db: AsyncSession) -> list[models.PieceReelle]:
@@ -26,7 +26,7 @@ async def get_kits(db: AsyncSession) -> list[models.Kit]:
     return result.scalars().all()
 
 
-async def get_kit_by_id(db: AsyncSession, id_kit: int) -> models.Kit:
+async def get_kit_by_id(db: AsyncSession, id_kit: int) -> models.Kit | None:
     result = await db.execute(select(models.Kit).where(models.Kit.id == id_kit))
     return result.scalars().first()
 
@@ -36,7 +36,7 @@ async def add_kit(db: AsyncSession, kit: schemas.KitBase) -> models.Kit:
         select(func.max(models.Kit.id)).select_from(models.Kit)
     )
     id_max = recherche_id.scalars().first()
-    if id_max != None:
+    if id_max is not None:
         id = id_max + 1
     else:
         id = 1
@@ -55,3 +55,7 @@ async def edit_kit(db: AsyncSession, kit: schemas.KitBase, id_kit: int):
         update(models.Kit).where(models.Kit.id == id_kit).values(**kit.dict())
     )
     await db.commit()
+
+async def get_kit_pieces(db: AsyncSession, id_kit: int) -> list[models.PieceConception]:
+    result = await db.execute(select(models.piece_conception).where(models.PieceConception.id_kit==id_kit))
+    return result.scalars().all()

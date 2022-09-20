@@ -58,7 +58,7 @@ class PieceReelle(Base):
     nombre_reel: int = Column(Integer, nullable=False)
 
 
-class piece_conception(Base):
+class PieceConception(Base):
     __tablename__ = "piece_conception"
     nomenclature_catia: str = Column(String, primary_key=True)
     id_commande: int = Column(ForeignKey("commande.id"), nullable=False)
@@ -67,7 +67,7 @@ class piece_conception(Base):
     quantite: int = Column(Integer, nullable=False)
     id_kit: int = Column(ForeignKey("kit.id"), nullable=False)
     lieu_stockage: str = Column(String)
-    lien_MEP: str = Column(String)
+    lien_mep: str = Column(String)
 
 
 class DetailCommande(Base):

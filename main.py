@@ -100,7 +100,7 @@ async def edit_kit(
     tags=[Tags.kits],
 )
 async def get_kit_pieces(id_kit: int, db: AsyncSession = Depends(get_db)):
-    return crud.get_kit_pieces(db, id_kit)
+    return await crud.get_kit_pieces(db, id_kit)
 
 
 @app.get("/infos", response_model=schemas.Infos, status_code=200, tags=[Tags.kits])
