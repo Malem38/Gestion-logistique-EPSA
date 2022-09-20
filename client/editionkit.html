@@ -111,8 +111,9 @@
                 document.getElementById("pieces_kit").style.display = "block";
             }
 
-            xhr.open("GET", "/kits/" + id, true)
-            xhr.send()
+            xhr.open("GET", "/kits/" + id, true);
+            xhr.send();
+            load_pieces();
         }
     }
     function load_pieces() {
@@ -120,10 +121,13 @@
         var search_params = new URLSearchParams(url.search);
         var id = search_params.get('id_kit');
         var xhr = new XMLHttpRequest();
+        var html = "";
 
         xhr.onload = function () {
             var data = JSON.parse(this.responseText);
             document.getElementById("ajoutpiece").disabled = false;
+
+            document.getElementById("tbody_pieces_kit").innerHTML = "";
 
             for (n = 0; n < data.length; n++) {
                 html += "<tr><td>";
@@ -133,12 +137,12 @@
                 html += "</td><td>";
                 html += data[n].quantite;
                 html += "</td><td>";
-                html += data[n].lien_MEP;
+                html += data[n].lien_mep;
                 html += "</td><td><button onclick='edit_piece(" + data[n].id + ")'>Modifier</button>";
                 html += "</td></tr>";
 
             };
-            document.getElementById("tableaupieces").innerHTML = html;
+            document.getElementById("tbody_pieces_kit").innerHTML = html;
         }
 
         xhr.open("GET", "/kits/" + id + "/pieces", true)
@@ -227,17 +231,14 @@
         xhr.onload = function () {
             load_pieces()
         }
-        xhr.open('POST', '/kits/'+id+'/ajoutpiece', true);
+        xhr.open('POST', '/kits/' + id + '/pieces', true);
         xhr.setRequestHeader("Content-type", "application/json");
         xhr.send(JSON.stringify({
-        reference: document.getElementById("reference").value,
-        nom: document.getElementById("nom").value,
-        quantite: document.getElementById("quantite").value,
-        lien_achat: document.getElementById("lien_achat").value,
-        prix: document.getElementById("prix").value,
-        poids: document.getElementById("poids").value,
-        fabricant: document.getElementById("fabricant").value,
-        description: document.getElementById("description").value
+            nomenclature_catia: document.getElementById("input_catia").value,
+            materiau: document.getElementById("input_materiau").value,
+            quantite: document.getElementById("input_quantite").value,
+            lien_mep: document.getElementById("input_MEP").value,
+            id_kit: id,
         }));
     }
 </script>

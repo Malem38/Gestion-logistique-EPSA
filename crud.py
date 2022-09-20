@@ -56,6 +56,20 @@ async def edit_kit(db: AsyncSession, kit: schemas.KitBase, id_kit: int):
     )
     await db.commit()
 
+
 async def get_kit_pieces(db: AsyncSession, id_kit: int) -> list[models.PieceConception]:
-    result = await db.execute(select(models.piece_conception).where(models.PieceConception.id_kit==id_kit))
-    return result.scalars().all()
+    result = await db.execute(
+        select(models.PieceConception).where(models.PieceConception.id_kit == id_kit)
+    )
+    data = result.scalars().all()
+    print(data)
+    return data
+
+
+async def add_kit_piece(db: AsyncSession, id_kit: int, piece: schemas.PiecesKitBase):
+    db.add(models.PieceConception(**piece.dict()))
+    try:
+        await db.commit()
+    except IntegrityError as err:
+        await db.rollback()
+        raise ValueError(err)

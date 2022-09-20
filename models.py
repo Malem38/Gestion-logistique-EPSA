@@ -2,7 +2,6 @@ from datetime import date
 from sqlalchemy import Column, ForeignKey, Integer, String, Float, Date, Boolean
 
 from database import Base
-from custypes import *
 
 
 class Membre(Base):
@@ -61,13 +60,13 @@ class PieceReelle(Base):
 class PieceConception(Base):
     __tablename__ = "piece_conception"
     nomenclature_catia: str = Column(String, primary_key=True)
-    id_commande: int = Column(ForeignKey("commande.id"), nullable=False)
-    id_piece: str = Column(ForeignKey("piece_reelle.reference"), nullable=False)
+    id_commande: int = Column(ForeignKey("commande.id"), nullable=True)
+    id_piece: str = Column(ForeignKey("piece_reelle.reference"), nullable=True)
     materiau: str = Column(String, nullable=False)
     quantite: int = Column(Integer, nullable=False)
     id_kit: int = Column(ForeignKey("kit.id"), nullable=False)
-    lieu_stockage: str = Column(String)
-    lien_mep: str = Column(String)
+    lieu_stockage: str = Column(String, nullable=True)
+    lien_mep: str = Column(String, nullable=False)
 
 
 class DetailCommande(Base):

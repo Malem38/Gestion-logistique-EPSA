@@ -95,12 +95,19 @@ async def edit_kit(
 
 @app.get(
     "/kits/{id_kit}/pieces",
-    response_model=list[schemas.PiecesKitBase],
+    response_model=list[schemas.PiecesKitComplet],
     status_code=200,
     tags=[Tags.kits],
 )
 async def get_kit_pieces(id_kit: int, db: AsyncSession = Depends(get_db)):
     return await crud.get_kit_pieces(db, id_kit)
+
+
+@app.post("/kits/{id_kit}/pieces", status_code=201, tags=[Tags.kits])
+async def post_kit_pieces(
+    id_kit: int, piece: schemas.PiecesKitBase, db: AsyncSession = Depends(get_db)
+):
+    await crud.add_kit_piece(db, id_kit, piece)
 
 
 @app.get("/infos", response_model=schemas.Infos, status_code=200, tags=[Tags.kits])

@@ -49,7 +49,7 @@ class PiecesKitBase(BaseModel):
     materiau: str
     quantite: int
     id_kit: int
-    lien_MEP: str
+    lien_mep: str
 
 
 class PiecesKitComplet(PiecesKitBase):
